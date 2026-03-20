@@ -2,7 +2,7 @@ Package: eurobarometer
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
 Authors@R: 
-    person("Jonas", "Lieth", , , role = c("aut", "cre"))
+    person("Jonas", "Lieth", , email = "jslth@outlook.com", role = c("aut", "cre"))
 Description: Eurobarometer Shiny App
 License: MIT + file LICENSE
 Encoding: UTF-8
