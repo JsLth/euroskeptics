@@ -151,7 +151,8 @@ group_polys <- gisco_get_nuts(country = iso3, nuts_level = "0", epsg = 3035, res
     new <- levels(.x)[median(as.numeric(.x), na.rm = TRUE)]
     factor(new, levels = levels(eurobaro[[cur_column()]]))
   })) |>
-  st_cast("MULTIPOLYGON")
+  ungroup() |>
+  st_drop_geometry()
 global_polys <- ne_countries(scale = 50) |>
   st_transform(3035) |>
   select(country = iso_a2_eh)

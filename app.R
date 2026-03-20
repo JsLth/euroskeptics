@@ -12,6 +12,18 @@ eurobaro <- readRDS("data/eurobaro.rds")
 eurobaro_spatial <- readRDS("data/eurobaro_spatial.rds")
 global_polys <- readRDS("data/global_polys.rds")
 
+medians <- map_if(
+  eurobaro,
+  is.factor,
+  ~median(as.numeric(.x), na.rm = TRUE)
+)
+
+medians_spatial <- map_if(
+  st_drop_geometry(eurobaro_spatial),
+  is.factor,
+  ~median(as.numeric(.x), na.rm = TRUE)
+)
+
 # Define UI for application that draws a histogram
 ui <- page_sidebar(
   title = tagList(
@@ -163,10 +175,13 @@ server <- function(input, output) {
 
     eurobaro_spatial |>
       summarise(across(c(x, y), ~{
-        new <- levels(.x)[median(as.numeric(.x), na.rm = TRUE)]
+        median <- medians_spatial[[input[[cur_column()]]]]
+        new <- levels(.x)[median]
         factor(new, levels = levels(eurobaro[[input[[cur_column()]]]]))
       })) |>
-      ungroup()
+      ungroup() |>
+      left_join(global_polys, by = "country") |>
+      st_as_sf()
   })
   
   output$x_text <- renderUI({
@@ -203,7 +218,7 @@ server <- function(input, output) {
     vals <- eurobaro[[input$x]]
     value_box(
       title = HTML(paste("Median:<br>", titles[[input$x]])),
-      value = levels(vals)[median(as.numeric(vals), na.rm = TRUE)],
+      value = levels(vals)[medians[[input$x]]],
       showcase = icon("x"),
       min_height = 135
     )
@@ -213,7 +228,7 @@ server <- function(input, output) {
     vals <- eurobaro[[input$y]]
     value_box(
       title = HTML(paste("Median:<br>", titles[[input$y]])),
-      value = levels(vals)[median(as.numeric(vals), na.rm = TRUE)],
+      value = levels(vals)[medians[[input$y]]],
       showcase = icon("y"),
       height = 135
     )
