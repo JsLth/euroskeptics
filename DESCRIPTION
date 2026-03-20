@@ -1,0 +1,19 @@
+Package: eurobarometer
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person("Jonas", "Lieth", , , role = c("aut", "cre"))
+Description: Eurobarometer Shiny App
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends: 
+    tidyverse
+Imports: 
+    bslib,
+    munsell,
+    sf,
+    shiny,
+    shinyWidgets,
+    waiter
