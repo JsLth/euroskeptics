@@ -24,11 +24,11 @@ medians_spatial <- map_if(
   ~median(as.numeric(.x), na.rm = TRUE)
 )
 
-# Define UI for application that draws a histogram
+
 ui <- page_sidebar(
   title = tagList(
-    "Eurobarometer 101.1",
-    actionButton("source", label = "Data source", icon = icon("diaspora"))
+    "Euroskeptizismus",
+    actionButton("source", label = "Datenquelle", icon = icon("diaspora"))
   ),
   sidebar = sidebar(
     virtualSelectInput(
@@ -52,7 +52,7 @@ ui <- page_sidebar(
     virtualSelectInput(
       "group",
       label = "Wähle eine Gruppierung aus",
-      choices = c("Keine" = "", setNames(names(titles_groups), titles_groups))
+      choices = c("Keine" = "Keine", setNames(names(titles_groups), titles_groups))
     ),
     
     conditionalPanel(
@@ -148,7 +148,7 @@ server <- function(input, output) {
   
   .data <- reactive({
     group <- input$group
-    if (!nzchar(group)) group <- NULL
+    if (identical(group, "Keine")) group <- NULL
 
     #w1$show()
     
@@ -158,7 +158,7 @@ server <- function(input, output) {
   
   .data_spatial <- reactive({
     group <- input$group
-    if (!nzchar(group)) group <- NULL
+    if (identical(group, "Keine")) group <- NULL
 
     #w2$show()
     
@@ -175,8 +175,8 @@ server <- function(input, output) {
 
     eurobaro_spatial |>
       summarise(across(c(x, y), ~{
-        median <- medians_spatial[[input[[cur_column()]]]]
-        new <- levels(.x)[median]
+        med <- median(as.numeric(.x), na.rm = TRUE)
+        new <- levels(.x)[med]
         factor(new, levels = levels(eurobaro[[input[[cur_column()]]]]))
       })) |>
       ungroup() |>
@@ -205,6 +205,9 @@ server <- function(input, output) {
   })
   
   output$group_text <- renderUI({
+    group <- input$group
+    if (identical(group, "Keine")) group <- NULL
+    req(group, cancelOutput = TRUE)
     tags$blockquote(
       tags$p(
         tags$b("Frage:"), tags$br(),
@@ -238,7 +241,7 @@ server <- function(input, output) {
     x <- as.numeric(eurobaro[[input$x]])
     y <- as.numeric(eurobaro[[input$y]])
     value_box(
-      title = "Correlation between X and Y",
+      title = "Korrelation zwischen X und Y",
       value = round(cor(x, y, method = "spearman", use = "complete.obs"), 2),
       showcase = icon("link"),
       height = 135
@@ -248,7 +251,7 @@ server <- function(input, output) {
   output$xy_dist <- renderPlot({
     .data <- pivot_longer(.data(), c(x, y)) |>
       mutate(name = case_match(name, "x" ~ input$x, "y" ~ input$y))
-    has_group <- nzchar(input$group)
+    has_group <- !identical(input$group, "Keine")
 
     ggplot(na.omit(.data)) +
       geom_bar(
@@ -292,7 +295,7 @@ server <- function(input, output) {
       summarise(count = n()) |>
       mutate(cut_count = sum(count), prop = count / sum(count)) |>
       ungroup()
-    has_group <- nzchar(input$group)
+    has_group <- !identical(input$group, "Keine")
 
     ggplot(na.omit(.data)) +
       geom_bar(
@@ -321,7 +324,7 @@ server <- function(input, output) {
   
   output$x_map <- renderPlot({
     .data <- .data_spatial()
-    has_group <- nzchar(input$group)
+    has_group <- !identical(input$group, "Keine")
     lims <- list(x = c(2500000, 6000000), y = c(1500000, 5200000))
 
     p <- ggplot() +
@@ -352,7 +355,7 @@ server <- function(input, output) {
   
   output$y_map <- renderPlot({
     .data <- .data_spatial()
-    has_group <- nzchar(input$group)
+    has_group <- !identical(input$group, "Keine")
     lims <- list(x = c(2500000, 6000000), y = c(1500000, 5200000))
 
     p <- ggplot() +
