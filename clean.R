@@ -35,7 +35,7 @@ eurobaro <- eurobaro |>
     
     age = d11r1,
     gender = d10,
-    occupation = d15b,
+    occupation = d15a,
     place_type = d25,
     class = d63,
     starts_with("d9a")
@@ -79,7 +79,10 @@ eurobaro <- eurobaro |>
         "Unskilled manual worker, etc."
       ),
       "Nicht erwerbstätig" = c(
-        "Never did any paid work"
+        "Responsible for ordinary shopping, etc.",
+        "Student",
+        "Unemployed, temporarily not working",
+        "Retired, unable to work"
       )
     )
   ) |>
@@ -139,6 +142,7 @@ eurobaro <- eurobaro |>
   mutate(country = substr(country, 1, 2))
 
 saveRDS(eurobaro, "data/eurobaro.rds")
+readr::write_csv(eurobaro, "data/eb_euroscepticism.csv")
 
 
 iso3 <- countrycode(substr(unique(eurobaro$country), 1, 2), "iso2c", destination = "iso3c")
